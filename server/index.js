@@ -90,7 +90,11 @@ const initPresenter = (socket, initialData, baseUrl, hashsecret) => {
         multiplexes[multiplexId] = data;
 
         socket.to("multiplex-" + multiplexId).emit("multiplex", data);
-    })
+    });
+
+    socket.on("video-command", function (data) {
+        socket.to("multiplex-" + multiplexId).emit("video-command", data);
+    });
 };
 
 const initRemoteControl = (socket, initialData) => {

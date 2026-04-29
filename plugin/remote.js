@@ -7,6 +7,7 @@ let beforeSyncHook = null;
 
 let multiplexPaused = false;
 let _sendMultiplexStateRef = null;
+let _socket = null;
 
 
 const init = (reveal) => {
@@ -48,6 +49,7 @@ const init = (reveal) => {
 
         console.log("Remote: connecting to", pluginConfig.server + pluginConfig.path);
         socket = io.connect(pluginConfig.server, {path: pluginConfig.path});
+        _socket = socket;
 
         socket.on("connect_error", function (err) {
             console.warn("Remote: Could not connect to socket.io-remote server", err);
@@ -336,5 +338,9 @@ export default () => ({
     setMultiplexPaused(paused) { multiplexPaused = !!paused; },
     isMultiplexPaused() { return multiplexPaused; },
     // Force-send current state to followers immediately (useful on resume to re-sync).
-    sendCurrentState() { if (_sendMultiplexStateRef) _sendMultiplexStateRef(); }
+    sendCurrentState() { if (_sendMultiplexStateRef) _sendMultiplexStateRef(); },
+    // Send a custom message over the established socket.
+    sendMessage(type, data) { if (_socket) _socket.emit(type, data); },
+    // Register a handler for a custom socket message type.
+    onMessage(type, fn) { if (_socket) _socket.on(type, fn); },
 });
