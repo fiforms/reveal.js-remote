@@ -352,6 +352,12 @@ const init = (reveal) => {
             return;
         }
 
+        if (cmd === 'goto-slide' && typeof data.h === 'number') {
+            const v = typeof data.v === 'number' ? data.v : 0;
+            reveal.slide(data.h, v);
+            return;
+        }
+
         if (listeners.hasOwnProperty(cmd)) {
             listeners[cmd]();
         } else {

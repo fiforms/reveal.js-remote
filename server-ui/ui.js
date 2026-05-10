@@ -88,6 +88,18 @@ window.slideControl = window.slideControl || (function () {
             document.getElementById('preview-toggle').style.display = 'block';
         });
 
+        document.getElementById('goto-button').style.display = 'block';
+
+        document.getElementById('goto-input').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                slideControl.goToSlide();
+                e.preventDefault();
+            } else if (e.key === 'Escape') {
+                slideControl.closeGotoDialog();
+                e.preventDefault();
+            }
+        });
+
         socket.on('state_changed', function (data) {
             allowSwipe = data.allowSwipe;
             document.getElementById('progress').style.width = Math.floor(data.progress * 100) + '%';
@@ -209,6 +221,37 @@ window.slideControl = window.slideControl || (function () {
         }
     }
 
+    function openGotoDialog() {
+        const modal = document.getElementById('goto-modal');
+        modal.classList.add('visible');
+        const input = document.getElementById('goto-input');
+        input.value = '';
+        input.focus();
+    }
+
+    function closeGotoDialog() {
+        const modal = document.getElementById('goto-modal');
+        modal.classList.remove('visible');
+    }
+
+    function goToSlide() {
+        const input = document.getElementById('goto-input');
+        const value = input.value.trim();
+        if (!value) return;
+
+        const parts = value.split('.');
+        const h = parseInt(parts[0], 10) - 1;
+        const v = parts.length > 1 ? parseInt(parts[1], 10) - 1 : 0;
+
+        if (isNaN(h + 1)) {
+            console.warn('Invalid slide number');
+            return;
+        }
+
+        socket.emit('command', { command: 'goto-slide', h: h, v: v });
+        closeGotoDialog();
+    }
+
     init();
 
     return {
@@ -226,5 +269,8 @@ window.slideControl = window.slideControl || (function () {
         togglePreview,
         zoomIn,
         zoomOut,
+        openGotoDialog,
+        closeGotoDialog,
+        goToSlide,
     }
 })();
