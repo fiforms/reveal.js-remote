@@ -2,6 +2,7 @@ export default (options = {}) => {
   let reveal = null
   let currentZoom = null
   let currentSlideElement = null
+  let lastAppliedZoom = null
   let isRemoteZoom = false
   const isFollower = options.isFollower || false
 
@@ -19,6 +20,10 @@ export default (options = {}) => {
       })
       reveal.addEventListener('ready', (e) => {
         setupForSlideElement(e.currentSlide)
+        // Reset zoom state on ready so new follower can apply zoom that arrived before ready
+        if (isFollower) {
+          lastAppliedZoom = null;
+        }
       })
 
       if (isFollower) {
@@ -124,33 +129,41 @@ export default (options = {}) => {
       }
 
       if (focus === null) {
-        document.dispatchEvent(new KeyboardEvent('keydown', {
-          key: 'Escape',
-          bubbles: true,
-          cancelable: true
-        }));
+        if (lastAppliedZoom !== null) {
+          lastAppliedZoom = null;
+          document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Escape',
+            bubbles: true,
+            cancelable: true
+          }));
+        }
       } else {
-        // Emit synthetic Ctrl+click at the focus coordinates
-        const rect = currentSlideElement.getBoundingClientRect();
-        const clickX = rect.left + (focus.x / 100) * rect.width;
-        const clickY = rect.top + (focus.y / 100) * rect.height;
+        // Only dispatch if zoom state has actually changed
+        if (lastAppliedZoom === null || lastAppliedZoom.x !== focus.x || lastAppliedZoom.y !== focus.y) {
+          // Emit synthetic Ctrl+click at the focus coordinates
+          const rect = currentSlideElement.getBoundingClientRect();
+          const clickX = rect.left + (focus.x / 100) * rect.width;
+          const clickY = rect.top + (focus.y / 100) * rect.height;
 
-        const syntheticEvent = new MouseEvent('mousedown', {
-          bubbles: true,
-          cancelable: true,
-          ctrlKey: true,
-          altKey: true,
-          metaKey: true,
-          clientX: clickX,
-          clientY: clickY,
-          button: 0,
-          view: window
-        });
+          const syntheticEvent = new MouseEvent('mousedown', {
+            bubbles: true,
+            cancelable: true,
+            ctrlKey: true,
+            altKey: true,
+            metaKey: true,
+            clientX: clickX,
+            clientY: clickY,
+            button: 0,
+            view: window
+          });
 
-        // Mark as remote zoom so onFollowerCtrlClick doesn't block it
-        isRemoteZoom = true;
-        reveal.getRevealElement().dispatchEvent(syntheticEvent);
-        isRemoteZoom = false;
+          // Mark as remote zoom so onFollowerCtrlClick doesn't block it
+          isRemoteZoom = true;
+          reveal.getRevealElement().dispatchEvent(syntheticEvent);
+          isRemoteZoom = false;
+
+          lastAppliedZoom = { x: focus.x, y: focus.y };
+        }
       }
     }
   }
