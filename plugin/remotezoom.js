@@ -24,8 +24,11 @@ export default () => {
     reveal.dispatchEvent({ type: 'disable-zoom' })
   }
 
-  const doubleClickListener = (e) => {
+  const ctrlClickListener = (e) => {
     if (!allowControl()) return
+    if (!e.ctrlKey && !e.metaKey) return
+
+    e.preventDefault()
 
     if (currentZoom !== null) {
       dispatchDisableZoom()
@@ -39,10 +42,10 @@ export default () => {
   function setupForSlideElement(element) {
     if (currentSlideElement !== null) {
       applyZoom(null)
-      currentSlideElement.removeEventListener('dblclick', doubleClickListener)
+      currentSlideElement.removeEventListener('mousedown', ctrlClickListener)
     }
 
-    element.addEventListener('dblclick', doubleClickListener)
+    element.addEventListener('mousedown', ctrlClickListener)
 
     currentSlideElement = element
   }
