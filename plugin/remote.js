@@ -314,8 +314,43 @@ const init = (reveal) => {
         listeners[cmd] = fn;
     }
 
+    function navigateToAnchor(anchor) {
+        // Index-based with slash: #/h or #/h/v  (e.g. #/2 or #/2/1)
+        const slashIndexMatch = anchor.match(/^#\/(\d+)(?:\/(\d+))?$/);
+        if (slashIndexMatch) {
+            reveal.slide(parseInt(slashIndexMatch[1], 10), slashIndexMatch[2] !== undefined ? parseInt(slashIndexMatch[2], 10) : 0);
+            return;
+        }
+        // Index-based bare number: #2  (1-based user notation converted to 0-based index)
+        const bareIndexMatch = anchor.match(/^#(\d+)$/);
+        if (bareIndexMatch) {
+            const zeroBasedIndex = parseInt(bareIndexMatch[1], 10) - 1;
+            reveal.slide(zeroBasedIndex, 0);
+            return;
+        }
+        // ID-based: #named-anchor or #/named-anchor
+        const id = anchor.replace(/^#\/?/, '');
+        try {
+            const el = document.getElementById(id) || document.querySelector(anchor);
+            if (el) {
+                const slideEl = el.closest('section');
+                if (slideEl) {
+                    const indices = reveal.getIndices(slideEl);
+                    reveal.slide(indices.h, indices.v);
+                }
+            }
+        } catch (e) {
+            console.warn('Remote: goto-anchor failed for', anchor, e);
+        }
+    }
+
     function msgCommand(data) {
         const cmd = data.command;
+
+        if (cmd === 'goto-anchor' && data.anchor) {
+            navigateToAnchor(data.anchor);
+            return;
+        }
 
         if (listeners.hasOwnProperty(cmd)) {
             listeners[cmd]();

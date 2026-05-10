@@ -71,6 +71,16 @@ window.slideControl = window.slideControl || (function () {
                 text = "(The current slide has no speaker notes)";
             }
             document.getElementById('notes').innerHTML = text;
+
+            const notesDiv = document.getElementById('notes');
+            const anchors = notesDiv.querySelectorAll('a[href^="#"]');
+            anchors.forEach(function (anchor) {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const href = anchor.getAttribute('href');
+                    socket.emit('command', { command: 'goto-anchor', anchor: href });
+                });
+            });
         });
 
         socket.on('presentation_url', function (data) {

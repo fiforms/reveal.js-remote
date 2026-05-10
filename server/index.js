@@ -116,9 +116,7 @@ const initRemoteControl = (socket, initialData) => {
 
     socket.on("command", (data) => {
         if (typeof data !== "undefined" && typeof data.command === "string") {
-            socket.to("presenter-" + id).emit("command", {
-                command: data.command
-            });
+            socket.to("presenter-" + id).emit("command", data);
         }
     });
 }
