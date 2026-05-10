@@ -106,9 +106,10 @@ While presenting, press `r` („**R**emote“) and scan the QR-Code to get the r
 
 ### Zooming in presentations
 
-Reveal's zoom-Plugin does not emit any events. This is why changes cannot be tracked and synchronized to the audience.
+#### Remote Zoom Sync (recommended for recent reveal.js versions)
 
-However, thanks to [l-jonas](https://github.com/l-jonas) this plugin now ships with a custom zoom functionality.
+For recent versions of reveal.js with native zoom support, use the `remote-zoom-sync` plugin to synchronize zoom actions with followers. This plugin mirrors the presenter's zoom actions using reveal.js' native zoom implementation.
+
 To enable this plugin, include an additional Javascript:
 
 Common.js:
@@ -117,10 +118,33 @@ Common.js:
     <script src="../socket.io/socket.io.js"></script>
     <script src="../_remote/plugin.js"></script>
     <!-- this line is new: -->
-    <script src="../_remote/remotezoom.js"></script>
+    <script src="../_remote/remotezoomsync.js"></script>
 ```
 
-Then, load the plugin as usual:
+Then, load the plugin:
+
+```javascript
+    Reveal.initialize({
+      // … other initialization …
+      plugins: [ RevealRemoteZoomSync, RevealRemote /*, OtherPlugins… */ ]
+    });
+```
+
+Press **Ctrl+Click** on any slie to zoom in. The zoom action will be synchronized to all followers in real-time.
+
+#### Legacy Remote Zoom (historical)
+
+The original `remotezoom` plugin is still available for older versions of reveal.js that don't have native zoom support. Thanks to [l-jonas](https://github.com/l-jonas), this plugin provides custom zoom functionality that can be synchronized to the audience.
+
+To use the legacy plugin:
+
+Common.js:
+
+```html
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="../_remote/plugin.js"></script>
+    <script src="../_remote/remotezoom.js"></script>
+```
 
 ```javascript
     Reveal.initialize({
@@ -129,7 +153,7 @@ Then, load the plugin as usual:
     });
 ```
 
-You can now do a synchronized zoom by double-clicking on any element in the presentation.
+You can do a synchronized zoom by double-clicking on any element in the presentation.
 
 ### Resuming a presentation
 

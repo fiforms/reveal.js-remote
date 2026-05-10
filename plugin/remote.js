@@ -276,7 +276,7 @@ const init = (reveal) => {
         if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         if (multiplexPaused) return;
         const state = reveal.getState();
-        const zoomPlugin = reveal.getPlugin("remote-zoom");
+        const zoomPlugin = reveal.getPlugin("remote-zoom-sync") || reveal.getPlugin("remote-zoom");
         const zoom = zoomPlugin ? zoomPlugin.getCurrentZoom() : null;
 
         socket.emit("multiplex", {state: state, zoom: zoom});
@@ -289,7 +289,7 @@ const init = (reveal) => {
     let pendingMultiplexState = null;
 
     function applyMultiplexState(data) {
-        const zoomPlugin = reveal.getPlugin("remote-zoom");
+        const zoomPlugin = reveal.getPlugin("remote-zoom-sync") || reveal.getPlugin("remote-zoom");
         reveal.setState(data.state);
         if (zoomPlugin) {
             zoomPlugin.setCurrentZoom(data.zoom);
