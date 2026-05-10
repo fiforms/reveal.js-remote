@@ -1,5 +1,7 @@
 # reveal.js remote
 
+> **Fork Notice:** This is a fork of [cologneintelligence/reveal.js-remote](https://github.com/cologneintelligence/reveal.js-remote) developed to support the [REVELation Snapshot Presenter](https://github.com/fiforms/revelation-electron-wrapper). It is distributed under the same [license](LICENSE) as the parent repository and can be freely used in other projects. See the [CHANGELOG](CHANGELOG.md) for details on the differences from the parent repository.
+
 ## Demo
 
 A [demo](https://presentations.jowisoftware.de/demo/) is available here.
