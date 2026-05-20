@@ -303,6 +303,12 @@ window.slideControl = window.slideControl || (function () {
         if (overlay) overlay.classList.add('active');
         if (toggle) toggle.classList.add('active');
         document.body.classList.add('simple-mode');
+
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn('Could not enter fullscreen:', err);
+            });
+        }
     }
 
     function exitSimpleMode() {
@@ -313,6 +319,12 @@ window.slideControl = window.slideControl || (function () {
         if (overlay) overlay.classList.remove('active');
         if (toggle) toggle.classList.remove('active');
         document.body.classList.remove('simple-mode');
+
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => {
+                console.warn('Could not exit fullscreen:', err);
+            });
+        }
     }
 
     function toggleSimpleMode() {
