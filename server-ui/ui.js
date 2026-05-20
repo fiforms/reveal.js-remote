@@ -156,7 +156,9 @@ window.slideControl = window.slideControl || (function () {
     function setupSwipe() {
         let startX = 0;
         let startY = 0;
+        let startWindowScrollY = 0;
         let isMoving = false;
+        let swipeDetected = null;
         const target = document.getElementById("notes");
 
         target.addEventListener('touchstart', function (e) {
@@ -165,7 +167,9 @@ window.slideControl = window.slideControl || (function () {
             if (e.touches.length === 1) {
                 startX = e.touches[0].pageX;
                 startY = e.touches[0].pageY;
+                startWindowScrollY = window.scrollY;
                 isMoving = true;
+                swipeDetected = null;
                 target.addEventListener('touchmove', onTouchMove, false);
                 target.addEventListener('touchend', onTouchEnd, false);
             }
@@ -175,6 +179,10 @@ window.slideControl = window.slideControl || (function () {
             target.removeEventListener('touchmove', onTouchMove);
             target.removeEventListener('touchend', onTouchEnd);
             isMoving = false;
+
+            if (swipeDetected) {
+                sendCommand(swipeDetected.dx > 0 ? "next" : "prev");
+            }
         }
 
         function onTouchMove(e) {
@@ -183,13 +191,13 @@ window.slideControl = window.slideControl || (function () {
                 const x = e.touches[0].pageX;
                 const y = e.touches[0].pageY;
                 const dx = startX - x;
-                const dy = startY - y;
+                const scrollDistance = window.scrollY - startWindowScrollY;
+                const dy = (startY - y) + scrollDistance;
 
                 if (Math.abs(dx) >= 25 && Math.abs(dx) > Math.abs(dy) * 2) {
-                    sendCommand(dx > 0 ? "next" : "prev");
-                    onTouchEnd();
+                    swipeDetected = { dx, dy, x, y, scrollDistance };
                 } else if (Math.abs(dy) > 100) {
-                    onTouchEnd();
+                    swipeDetected = null;
                 }
             }
         }
@@ -206,9 +214,11 @@ window.slideControl = window.slideControl || (function () {
     function togglePreview() {
         const preview = document.getElementById('preview');
         const toggle = document.getElementById('preview-toggle');
+        const notes = document.getElementById('notes');
         if (preview.classList.contains('visible')) {
             preview.classList.remove('visible');
             toggle.classList.remove('active');
+            notes.classList.remove('withpreview');
         } else {
             if (!preview.querySelector('iframe') && slideUrl) {
                 const iframe = document.createElement('iframe');
@@ -218,6 +228,7 @@ window.slideControl = window.slideControl || (function () {
             }
             preview.classList.add('visible');
             toggle.classList.add('active');
+            notes.classList.add('withpreview');
         }
     }
 

@@ -25,6 +25,11 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
 #notes {
     overflow-y: auto;
     padding-bottom: 100px;
+    min-height: calc(100vh - 200px);
+}
+
+#notes.withpreview {
+    min-height: calc(100vh - 200px - (100vw * 9 / 16)); /* account for preview height */
 }
 
 .buttons {
