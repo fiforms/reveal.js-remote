@@ -182,11 +182,8 @@ window.slideControl = window.slideControl || (function () {
                 const dx = startX - x;
                 const dy = startY - y;
 
-                if (Math.abs(dx) >= 25) {
-                    if (Math.abs(dy) <= 50) {
-                        sendCommand(dx > 0 ? "next" : "prev");
-                    }
-
+                if (Math.abs(dx) >= 25 && Math.abs(dx) > Math.abs(dy) * 2) {
+                    sendCommand(dx > 0 ? "next" : "prev");
                     onTouchEnd();
                 } else if (Math.abs(dy) > 100) {
                     onTouchEnd();
