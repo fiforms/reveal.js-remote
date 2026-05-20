@@ -31,6 +31,10 @@
         ↪
     </a>
 
+    <a class="simple-toggle" id="simple-toggle" href="#" onclick="slideControl.toggleSimpleMode(); return false;">
+        <img src="./simple.svg" alt="simple mode">
+    </a>
+
     <div class="buttons">
 		<div class="arrows">
 			<span>&nbsp;</span>
@@ -96,6 +100,12 @@
                 <button onclick="slideControl.closeGotoDialog(); return false;">Cancel</button>
             </div>
         </div>
+    </div>
+
+    <div id="simple-mode-overlay">
+        <button id="simple-prev" class="simple-prev-btn">&#8679;</button>
+        <button id="simple-next" class="simple-next-btn">&#8681;</button>
+        <div id="simple-exit" class="simple-exit-target" title="Long-press to exit"></div>
     </div>
 
     <script type="module" src="./ui.js"></script>

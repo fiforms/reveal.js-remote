@@ -4,6 +4,7 @@ window.slideControl = window.slideControl || (function () {
     let socket;
     let allowSwipe = true;
     let slideUrl = null;
+    let simpleMode = false;
 
     const ZOOM_STEP = 0.1;
     const ZOOM_MIN = 0.4;
@@ -33,6 +34,7 @@ window.slideControl = window.slideControl || (function () {
         applyZoom();
         setupKeyboard();
         setupSwipe();
+        initSimpleMode();
 
         socket = io.connect({path: path});
 
@@ -176,6 +178,7 @@ window.slideControl = window.slideControl || (function () {
         }
 
         function onTouchMove(e) {
+            if (simpleMode) return;
             if (isMoving) {
                 const x = e.touches[0].pageX;
                 const y = e.touches[0].pageY;
@@ -249,6 +252,77 @@ window.slideControl = window.slideControl || (function () {
         closeGotoDialog();
     }
 
+    function initSimpleMode() {
+        if (localStorage.getItem('remoteSimpleMode') === 'true') {
+            enterSimpleMode();
+        }
+        const prevBtn = document.getElementById('simple-prev');
+        const nextBtn = document.getElementById('simple-next');
+        if (prevBtn && nextBtn) {
+            setupSimpleButton(prevBtn, 'prev');
+            setupSimpleButton(nextBtn, 'next');
+        }
+        const exitTarget = document.getElementById('simple-exit');
+        if (exitTarget) {
+            setupLongPress(exitTarget, exitSimpleMode, 3500);
+        }
+    }
+
+    function setupSimpleButton(el, cmd) {
+        el.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            sendCommand(cmd);
+        }, { passive: false });
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendCommand(cmd);
+        });
+    }
+
+    function setupLongPress(el, callback, duration) {
+        let timer = null;
+        const clear = () => clearTimeout(timer);
+        el.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            timer = setTimeout(callback, duration);
+        }, { passive: false });
+        el.addEventListener('touchend', clear);
+        el.addEventListener('touchcancel', clear);
+        el.addEventListener('mousedown', () => {
+            timer = setTimeout(callback, duration);
+        });
+        el.addEventListener('mouseup', clear);
+        el.addEventListener('mouseleave', clear);
+    }
+
+    function enterSimpleMode() {
+        simpleMode = true;
+        localStorage.setItem('remoteSimpleMode', 'true');
+        const overlay = document.getElementById('simple-mode-overlay');
+        const toggle = document.getElementById('simple-toggle');
+        if (overlay) overlay.classList.add('active');
+        if (toggle) toggle.classList.add('active');
+        document.body.classList.add('simple-mode');
+    }
+
+    function exitSimpleMode() {
+        simpleMode = false;
+        localStorage.removeItem('remoteSimpleMode');
+        const overlay = document.getElementById('simple-mode-overlay');
+        const toggle = document.getElementById('simple-toggle');
+        if (overlay) overlay.classList.remove('active');
+        if (toggle) toggle.classList.remove('active');
+        document.body.classList.remove('simple-mode');
+    }
+
+    function toggleSimpleMode() {
+        if (simpleMode) {
+            exitSimpleMode();
+        } else {
+            enterSimpleMode();
+        }
+    }
+
     init();
 
     return {
@@ -269,5 +343,6 @@ window.slideControl = window.slideControl || (function () {
         openGotoDialog,
         closeGotoDialog,
         goToSlide,
+        toggleSimpleMode,
     }
 })();
