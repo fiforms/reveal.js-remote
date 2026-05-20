@@ -88,6 +88,13 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
     right: 0;
     bottom: 8px;
     display: none;
+    padding: 4px;
+}
+
+.show-button img {
+    width: 28px;
+    height: 28px;
+    display: block;
 }
 
 .collapsed .show-button {
