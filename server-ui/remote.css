@@ -23,7 +23,8 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
 }
 
 #notes {
-    min-height: 100vh;
+    overflow-y: auto;
+    padding-bottom: 100px;
 }
 
 .buttons {
@@ -226,7 +227,9 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
     display: none;
     background: #000;
     overflow: hidden;
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 15;
 }
 
 /* Transparent overlay — blocks pointer events so the iframe never steals focus/keypresses */
@@ -253,7 +256,7 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
     #preview.visible {
         width: 100%;
         aspect-ratio: 16 / 9;
-        margin-bottom: 8px;
+        margin: 0;
     }
 }
 
@@ -263,7 +266,7 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
         float: left;
         width: 45%;
         aspect-ratio: 16 / 9;
-        margin: 0 10px 10px 0;
+        margin: 0;
     }
 }
 
