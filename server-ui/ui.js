@@ -159,14 +159,42 @@ window.slideControl = window.slideControl || (function () {
         let startWindowScrollY = 0;
         let isMoving = false;
         let swipeDetected = null;
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        const DOUBLE_TAP_THRESHOLD = 300;
+        const DOUBLE_TAP_DISTANCE = 50;
         const target = document.getElementById("notes");
 
         target.addEventListener('touchstart', function (e) {
             if (!allowSwipe) return;
 
             if (e.touches.length === 1) {
-                startX = e.touches[0].pageX;
-                startY = e.touches[0].pageY;
+                const currentTime = new Date().getTime();
+                const tapX = e.touches[0].pageX;
+                const tapY = e.touches[0].pageY;
+                const timeSinceLastTap = currentTime - lastTapTime;
+                const distanceSinceLastTap = Math.sqrt(
+                    Math.pow(tapX - lastTapX, 2) + Math.pow(tapY - lastTapY, 2)
+                );
+
+                if (
+                    timeSinceLastTap < DOUBLE_TAP_THRESHOLD &&
+                    distanceSinceLastTap < DOUBLE_TAP_DISTANCE &&
+                    !simpleMode
+                ) {
+                    e.preventDefault();
+                    requestFullscreen();
+                    lastTapTime = 0;
+                    return;
+                }
+
+                lastTapTime = currentTime;
+                lastTapX = tapX;
+                lastTapY = tapY;
+
+                startX = tapX;
+                startY = tapY;
                 startWindowScrollY = window.scrollY;
                 isMoving = true;
                 swipeDetected = null;
@@ -343,6 +371,14 @@ window.slideControl = window.slideControl || (function () {
             exitSimpleMode();
         } else {
             enterSimpleMode();
+        }
+    }
+
+    function requestFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn('Could not enter fullscreen:', err);
+            });
         }
     }
 
