@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Person silhouette -->
+  <circle cx="50" cy="27" r="12" fill="white"/>
+  <path d="M25,80 Q25,55 50,55 Q75,55 75,80" fill="white"/>
+
+  <!-- Prohibition circle -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="6"/>
+
+  <!-- Prohibition slash -->
+  <line x1="20" y1="80" x2="80" y2="20" stroke="white" stroke-width="6" stroke-linecap="round"/>
+</svg>

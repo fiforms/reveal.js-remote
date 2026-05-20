@@ -6,7 +6,7 @@ body {
     font-size: 16px;
 }
 
-a, a:link, a:active, a:hover, a:visited {
+a, a:link, a:active, a:hover, a:visited, a:focus {
     color: #42affa;
     text-decoration: none;
     outline: none;
@@ -86,7 +86,7 @@ a, a:link, a:active, a:hover, a:visited {
     background-color: #222;
     position: fixed;
     right: 0;
-    bottom: 0;
+    bottom: 8px;
     display: none;
 }
 
@@ -190,7 +190,7 @@ a, a:link, a:active, a:hover, a:visited {
     background-color: #222;
     position: fixed;
     left: 0;
-    bottom: 0;
+    bottom: 8px;
     display: none; /* shown via JS once the server sends a presentation URL */
     padding: 4px;
     opacity: 0.7;
@@ -273,7 +273,7 @@ a, a:link, a:active, a:hover, a:visited {
     background-color: #222;
     position: fixed;
     left: 40px;
-    bottom: 0;
+    bottom: 8px;
     display: none;
     padding: 4px;
     opacity: 0.7;
@@ -387,7 +387,7 @@ a, a:link, a:active, a:hover, a:visited {
     background-color: #222;
     position: fixed;
     left: 80px;
-    bottom: 0;
+    bottom: 8px;
     padding: 4px;
     opacity: 0.7;
     transition: opacity 0.2s;
@@ -461,15 +461,28 @@ a, a:link, a:active, a:hover, a:visited {
     background: #0d47a1;
 }
 
-/* Tiny long-press exit target in lower-left corner */
+/* Exit target in lower-left corner */
 .simple-exit-target {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 36px;
-    height: 36px;
+    bottom: 8px;
+    left: 8px;
+    width: 48px;
+    height: 48px;
     z-index: 501;
     cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    background-image: url('./simple-exit.svg');
+    background-size: 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.simple-exit-target:active {
+    opacity: 0.8;
 }
 
 /* Progress indicator visible in simple mode on top */
