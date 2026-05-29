@@ -141,8 +141,14 @@ window.slideControl = window.slideControl || (function () {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
             switch (e.key) {
-                case 'ArrowRight': case 'l': case 'L': sendCommand('right');    e.preventDefault(); break;
-                case 'ArrowLeft':  case 'h': case 'H': sendCommand('left');     e.preventDefault(); break;
+                case 'ArrowLeft':  case 'h': case 'H':
+                    sendCommand(simpleMode ? 'prev' : 'left');
+                    e.preventDefault();
+                    break;
+                case 'ArrowRight': case 'l': case 'L':
+                    sendCommand(simpleMode ? 'next' : 'right');
+                    e.preventDefault();
+                    break;
                 case 'ArrowUp':    case 'k': case 'K': sendCommand('up');       e.preventDefault(); break;
                 case 'ArrowDown':  case 'j': case 'J': sendCommand('down');     e.preventDefault(); break;
                 case ' ': case 'PageDown': case 'n': case 'N': sendCommand('next'); e.preventDefault(); break;
