@@ -5,9 +5,15 @@ import { io } from "socket.io-client";
 // Return false (or resolve to false) to suppress the state application.
 let beforeSyncHook = null;
 
+// Custom remote-control buttons registered by the host application. Kept at
+// module level (like multiplexPaused) so they can be registered before the
+// socket connects; they are sent to the server once the connection is up.
+const remoteButtons = new Map(); // id -> { id, label, title, disabled, handler }
+
 let multiplexPaused = false;
 let _sendMultiplexStateRef = null;
 let _socket = null;
+let _sendRemoteButtonsRef = null;
 
 
 const init = (reveal) => {
@@ -193,6 +199,7 @@ const init = (reveal) => {
 
     const msgInit = (data) => {
         if (pluginConfig.remote) {
+            sendRemoteButtons();
             reveal.addKeyBinding({keyCode: 82, key: "R", description: "Show remote control url"}, () => {
                 togglePopup(data.remoteImage, data.remoteUrl);
             });
@@ -272,6 +279,13 @@ const init = (reveal) => {
     }
 
 
+    function sendRemoteButtons() {
+        socket.emit("buttons_changed", {
+            buttons: Array.from(remoteButtons.values()).map(({id, label, title, disabled}) =>
+                ({id, label, title, disabled}))
+        });
+    }
+
     function sendMultiplexState() {
         if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         if (multiplexPaused) return;
@@ -347,6 +361,19 @@ const init = (reveal) => {
     function msgCommand(data) {
         const cmd = data.command;
 
+        // Only buttons the host registered can be triggered, and only by id.
+        if (cmd === 'button' && typeof data.id === 'string') {
+            const button = remoteButtons.get(data.id);
+            if (button && !button.disabled) {
+                try {
+                    button.handler();
+                } catch (e) {
+                    console.warn('Remote: custom button handler failed for', data.id, e);
+                }
+            }
+            return;
+        }
+
         if (cmd === 'goto-anchor' && data.anchor) {
             navigateToAnchor(data.anchor);
             return;
@@ -366,6 +393,7 @@ const init = (reveal) => {
     }
 
     _sendMultiplexStateRef = sendMultiplexState;
+    _sendRemoteButtonsRef = sendRemoteButtons;
     init();
 };
 
@@ -380,6 +408,32 @@ export default () => ({
     isMultiplexPaused() { return multiplexPaused; },
     // Force-send current state to followers immediately (useful on resume to re-sync).
     sendCurrentState() { if (_sendMultiplexStateRef) _sendMultiplexStateRef(); },
+    // Add (or replace) a custom button on the remote control page. The button is
+    // identified by `id`; `handler` runs here, on the presenter, when it is tapped.
+    // spec: { id, label, title?, disabled? }
+    addRemoteButton(spec, handler) {
+        if (!spec || typeof spec.id !== "string" || spec.id === "" || typeof handler !== "function") return;
+        remoteButtons.set(spec.id, {
+            id: spec.id,
+            label: spec.label ?? spec.id,
+            title: spec.title ?? "",
+            disabled: !!spec.disabled,
+            handler
+        });
+        if (_sendRemoteButtonsRef) _sendRemoteButtonsRef();
+    },
+    // Change a registered button's label, title or disabled state.
+    updateRemoteButton(id, patch) {
+        const button = remoteButtons.get(id);
+        if (!button || !patch) return;
+        for (const key of ["label", "title", "disabled"]) {
+            if (key in patch) button[key] = key === "disabled" ? !!patch[key] : patch[key];
+        }
+        if (_sendRemoteButtonsRef) _sendRemoteButtonsRef();
+    },
+    removeRemoteButton(id) {
+        if (remoteButtons.delete(id) && _sendRemoteButtonsRef) _sendRemoteButtonsRef();
+    },
     // Send a custom message over the established socket.
     sendMessage(type, data) { if (_socket) _socket.emit(type, data); },
     // Register a handler for a custom socket message type.

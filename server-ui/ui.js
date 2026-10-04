@@ -32,6 +32,9 @@ window.slideControl = window.slideControl || (function () {
             id = window.location.search.substring(1);
 
         applyZoom();
+        if (window.ResizeObserver) {
+            new ResizeObserver(updateCustomButtonsHeight).observe(document.getElementById('custom-buttons'));
+        }
         setupKeyboard();
         setupSwipe();
         initSimpleMode();
@@ -85,6 +88,10 @@ window.slideControl = window.slideControl || (function () {
             });
         });
 
+        socket.on('buttons_changed', function (data) {
+            renderCustomButtons(data && data.buttons);
+        });
+
         socket.on('presentation_url', function (data) {
             slideUrl = data.url;
             document.getElementById('preview-toggle').style.display = 'block';
@@ -122,6 +129,33 @@ window.slideControl = window.slideControl || (function () {
                 document.getElementById('autoslide').className = 'hidden';
             }
         });
+    }
+
+    // Buttons supplied by the host application (see addRemoteButton in the plugin).
+    // Built with textContent only, and shown above the navigation controls.
+    function renderCustomButtons(buttons) {
+        const container = document.getElementById('custom-buttons');
+        container.replaceChildren();
+        (Array.isArray(buttons) ? buttons : []).forEach(function (spec) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'custom-btn';
+            button.textContent = spec.label;
+            if (spec.title) button.title = spec.title;
+            button.disabled = !!spec.disabled;
+            button.addEventListener('click', function () {
+                socket.emit('command', { command: 'button', id: spec.id });
+            });
+            container.appendChild(button);
+        });
+        updateCustomButtonsHeight();
+    }
+
+    // The panel has a fixed height (so show/hide can animate); grow it by the
+    // height of the custom row, which is zero when there are no custom buttons.
+    function updateCustomButtonsHeight() {
+        const container = document.getElementById('custom-buttons');
+        document.documentElement.style.setProperty('--custom-buttons-height', container.offsetHeight + 'px');
     }
 
     function sendCommand(cmd) {

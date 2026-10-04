@@ -24,6 +24,24 @@ const mkHash = (remoteId, multiplexId, hashsecret) => {
         .digest("hex");
 }
 
+const MAX_CUSTOM_BUTTONS = 12;
+
+// Custom remote buttons are supplied by the host application; clamp them so a
+// misbehaving presenter can't flood remote screens. The remote UI renders them
+// with textContent, so no markup is ever interpreted.
+const sanitizeButtons = (data) => {
+    const list = data && Array.isArray(data.buttons) ? data.buttons : [];
+    return list
+        .filter((b) => b && typeof b.id === "string" && b.id !== "")
+        .slice(0, MAX_CUSTOM_BUTTONS)
+        .map((b) => ({
+            id: b.id.slice(0, 64),
+            label: String(b.label ?? b.id).slice(0, 40),
+            title: typeof b.title === "string" ? b.title.slice(0, 120) : "",
+            disabled: !!b.disabled
+        }));
+};
+
 const initPresenter = (socket, initialData, baseUrl, hashsecret) => {
     let remoteId = null;
     let multiplexId = null;
@@ -86,6 +104,16 @@ const initPresenter = (socket, initialData, baseUrl, hashsecret) => {
         socket.to("remote-" + remoteId).emit("notes_changed", data);
     });
 
+    socket.on("buttons_changed", function (data) {
+        if (!states.hasOwnProperty(remoteId)) {
+            states[remoteId] = {};
+        }
+        const buttons = {buttons: sanitizeButtons(data)};
+        states[remoteId].buttons = buttons;
+
+        socket.to("remote-" + remoteId).emit("buttons_changed", buttons);
+    });
+
     socket.on("multiplex", function (data) {
         multiplexes[multiplexId] = data;
 
@@ -108,6 +136,9 @@ const initRemoteControl = (socket, initialData) => {
         }
         if (states[initialData.id].state) {
             socket.emit("state_changed", states[initialData.id].state);
+        }
+        if (states[initialData.id].buttons) {
+            socket.emit("buttons_changed", states[initialData.id].buttons);
         }
         if (states[initialData.id].multiplexUrl) {
             socket.emit("presentation_url", { url: states[initialData.id].multiplexUrl });

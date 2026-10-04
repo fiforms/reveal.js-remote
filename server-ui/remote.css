@@ -55,7 +55,7 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
 @media screen and (orientation: portrait) {
 	.buttons {
 		width: min(75vw, 400px);
-		height: calc(min(75vw, 400px) + 25px);
+		height: calc(min(75vw, 400px) + 25px + var(--custom-buttons-height, 0px));
 	}
 
 	.arrows {
@@ -67,7 +67,7 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
 @media screen and (orientation: landscape) {
 	.buttons {
 		width: min(75vh, 400px);
-		height: calc(min(75vh, 400px) + 25px);
+		height: calc(min(75vh, 400px) + 25px + var(--custom-buttons-height, 0px));
 	}
 
 	.arrows {
@@ -114,6 +114,43 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
 
 .collapsed .show-button {
     display: block;
+}
+
+/* Host-supplied buttons, above the navigation controls so the nav keys keep
+   their position relative to the bottom corner. */
+.custom-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+.custom-buttons:empty {
+    display: none;
+}
+
+.custom-btn {
+    flex: 1 1 auto;
+    min-height: 40px;
+    padding: 6px 10px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background: #444;
+    color: #d8d8d8;
+    font: inherit;
+    cursor: pointer;
+}
+
+.custom-btn:hover, .custom-btn:focus {
+    background: #555;
+    color: #fff;
+}
+
+.custom-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
 }
 
 .buttons .hidden-active, .buttons .hidden {

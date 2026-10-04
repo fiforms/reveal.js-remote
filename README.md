@@ -236,6 +236,30 @@ remotePlugin.onBeforeSync(async () => {
 
 Only one hook can be registered at a time; calling `onBeforeSync` again replaces the previous hook.
 
+## Advanced: custom remote buttons
+
+Host applications can add their own buttons to the remote control page. They appear in the expanded menu panel, above the navigation controls. The remote page and server know nothing about what a button does: the button's handler runs in the presenter, so application-specific logic stays in your application.
+
+```javascript
+const remotePlugin = deck.getPlugin('RevealRemote');
+
+remotePlugin.addRemoteButton(
+    { id: 'whiteout', label: 'Whiteout', title: 'Fade the screen to white' },
+    () => { fadeScreenToWhite(); }
+);
+
+// Change a button later (label, title or disabled):
+remotePlugin.updateRemoteButton('whiteout', { disabled: true });
+
+remotePlugin.removeRemoteButton('whiteout');
+```
+
+- `id` is required and identifies the button; adding a button with an existing `id` replaces it.
+- Buttons can be registered before the plugin connects. They are sent to the server once connected and replayed to remotes that connect later.
+- Tapping a button sends its `id` to the presenter, which runs the handler only if that id is registered and not disabled. A remote cannot trigger anything else this way.
+- The server accepts at most 12 buttons and clamps ids (64 characters), labels (40) and titles (120). Labels are rendered as plain text.
+- Buttons need a server that supports `buttons_changed` (this version or later). With an older server they simply don't appear.
+
 ## Sources
 
 The swipe detection is adopted from [marcandre's detect_swipe](https://github.com/marcandre/detect_swipe).  

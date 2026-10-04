@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+#### Custom Remote Buttons
+- **Host-defined remote buttons** — New plugin methods `addRemoteButton(spec, handler)`, `updateRemoteButton(id, patch)` and `removeRemoteButton(id)` let a host application add its own buttons to the remote control page, shown above the navigation controls. Handlers run on the presenter; the remote only sends the button id, and only registered, enabled buttons can be triggered
+- **`buttons_changed` event** — The server stores and replays the button list to remotes, with limits on count and text length
+
+#### Speaker Notes
+- **Inline text colors** — The remote's notes view now styles `text-red`, `text-green`, `text-blue`, `text-purple`, `text-highlight` and `text-muted` spans
+
 #### Zoom Features
 - **Remote Zoom Sync Plugin** — New plugin for synchronizing zoom actions with followers using reveal.js' native zoom implementation (Ctrl+Click to zoom)
 - **Ctrl+Click Zoom** — Presenter can now zoom with Ctrl+Click, with synchronized zoom mirroring to all followers
