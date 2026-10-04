@@ -12,6 +12,15 @@ a, a:link, a:active, a:hover, a:visited, a:focus {
     outline: none;
 }
 
+/* Inline text colors in speaker notes, e.g. [text]{.red} in REVELation markdown,
+   which arrives as <span class="text-red">. Dark palette to match this page. */
+#notes .text-red { color: #ff6b6b; }
+#notes .text-green { color: #6fcf8a; }
+#notes .text-blue { color: #6cb4ff; }
+#notes .text-purple { color: #c792ea; }
+#notes .text-highlight { color: #ffd54f; }
+#notes .text-muted { color: #9aa0a6; }
+
 .disabled {
     opacity: 0.07;
     pointer-events: none;
